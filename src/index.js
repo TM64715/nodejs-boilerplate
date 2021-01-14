@@ -4,11 +4,14 @@ import { MongoClient } from "mongodb"
 // import UsersDAO from "./dao/usersDAO"
 // import CommentsDAO from "./dao/commentsDAO"
 import UsersDAO from "./dao/usersDAO";
+import ProjectDAO from './dao/projectsDAO'
 import { Strategy } from "passport";
 const port = process.env.PORT || 8000
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 import { Strategy as LocalStrategy } from 'passport-local';
+import {compareHash} from './service/encrypt.service'
+const bcrypt = require("bcrypt");
 /**
 Ticket: Connection Pooling
 
@@ -38,6 +41,7 @@ MongoClient.connect(
   .then(
       async client => {
           await UsersDAO.injectDB(client);
+          await ProjectDAO.injectDB(client);
     // await MoviesDAO.injectDB(client)
     // await UsersDAO.injectDB(client)
     // await CommentsDAO.injectDB(client)
@@ -58,20 +62,23 @@ passport.use(new GoogleStrategy({
 ));
 
 passport.use(new LocalStrategy(
-  function(username, password, done) {
-    User.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) { return done(null, false); }
-      if (!user.verifyPassword(password)) { return done(null, false); }
-      return done(null, user);
-    });
+  async function(username, password, done) {
+    let { error, result } = await UsersDAO.findByUsername(username);
+    if (error) { return done(error)};
+    console.log("Stage 2")
+    if (!result) {return done(null, false)};
+    console.log("Stage 3")
+    let compareResult = await compareHash(password, result.hash)
+    console.log(compareResult);
+    if (!(compareResult)) {return done(null, false)};
+    console.log("Stage 4")
+    return done(null, result);
   }
 ));
 
 
 
 passport.serializeUser(function(user, done) {
-    console.error("User", user);
     done(null, user._id);
 });
 
@@ -80,3 +87,12 @@ passport.deserializeUser(async function(id, done) {
   const {error, result} = await UsersDAO.findById(id)
   done(error, result);
 });
+
+app.post('/login',
+  passport.authenticate('local'),
+    function(req, res) {
+      // If this function gets called, authentication was successful.
+      // `req.user` contains the authenticated user.
+      res.json(req.user);
+});
+

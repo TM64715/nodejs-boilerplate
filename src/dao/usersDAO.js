@@ -1,7 +1,9 @@
 let users;
 let EB;
+import { hash } from 'bcrypt';
 import 'mongodb'
 import { ObjectId } from 'mongodb';
+import {genHash} from '../service/encrypt.service';
 export default class UsersDAO {
     static async injectDB(conn) {
         if (users) {
@@ -24,15 +26,32 @@ export default class UsersDAO {
      */
     
     static async findOrCreate(userInfo){
-        const {googleId, displayName} = userInfo
-        await users.updateOne({googleId: googleId}, {$set: {googleId: googleId, displayName: displayName}}, {upsert: true});
+        const {googleId, displayName, username, password} = userInfo
+        await users.updateOne({googleId: googleId,}, {$set: {googleId: googleId, username: displayName}}, {upsert: true});
         try {
             let result = await users.findOne({googleId: googleId})
             return({error: null, result: result});
         }
         catch (e) {
-            let error = "An error occured while finding document: " + e;
+            let error = "An error occured while finding document: " + e.toString();
             return({error: error, result: null});
+        }
+    }
+    /**
+     * 
+     * @param {Object} userInfo
+     * @returns {DAOResponse} 
+     */
+
+    static async createUser(userInfo) {
+        const {username, password} = userInfo;
+        try {
+            let {hash} = await genHash(password);
+            let result = await users.insertOne({username: username, hash: hash})
+            return({error: null, result: result})
+        }
+        catch (e) {
+            return({error:e.toString(), result: null})
         }
     }
     /** 
@@ -48,6 +67,19 @@ export default class UsersDAO {
             return({error: e, result: null});
         }
 
+    }
+    /** 
+     * @param {String} username - id of a user
+     * @returns {DAOResponse}
+    */
+
+    static async findByUsername(username) {
+        try {
+            let doc = await users.findOne({username: username})
+            return({error: null, result: doc});
+        } catch(e) {
+            return({error: e, result: null});
+        }
     }
     /**
      * @param {Object} UserInfo

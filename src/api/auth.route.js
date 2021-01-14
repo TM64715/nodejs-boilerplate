@@ -1,5 +1,6 @@
 import { Router } from "express"
 import passport from "passport";
+import UserController from './users.controller';
 const router = new Router();
 
 router.get('/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }))
@@ -10,5 +11,9 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
     console.log(redirectUrl);
     res.redirect(redirectUrl);
 })
+
+router.post('/register', UserController.register)
+
+
 
 export default router;

@@ -32,7 +32,7 @@ app.use('/auth', authRouter)
 // app.use("/status", express.static("build"))
 app.get("/hi", (req, res) => res.send(path.join(__dirname, "..", "website", "public", "index.html")) )
 app.get("/", (req, res) => res.redirect(process.env.CLIENT_APP_URL));
-
-app.use("*", (req, res) => res.status(404).json({ error: "not found" }))
+app.get('/me', (req, res) =>  console.log(req.user))
+// app.use("*", (req, res) => res.status(404).json({ error: "not found" }))
 
 export default app
