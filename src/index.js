@@ -5,13 +5,14 @@ import { MongoClient } from "mongodb"
 // import CommentsDAO from "./dao/commentsDAO"
 import UsersDAO from "./dao/usersDAO";
 import ProjectDAO from './dao/projectsDAO'
+import ElementsDAO from './dao/elementsDAO';
 import { Strategy } from "passport";
 const port = process.env.PORT || 8000
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 import { Strategy as LocalStrategy } from 'passport-local';
 import {compareHash} from './service/encrypt.service'
-const bcrypt = require("bcrypt");
+
 /**
 Ticket: Connection Pooling
 
@@ -27,7 +28,7 @@ concern timeout limit to 2500 milliseconds.
 */
 
 MongoClient.connect(
-  process.env.EB_DB_URI,
+  process.env.CMS_DB_URI,
   // TODO: Connection Pooling
   // Set the poolSize to 50 connections.
   // TODO: Timeouts
@@ -42,6 +43,7 @@ MongoClient.connect(
       async client => {
           await UsersDAO.injectDB(client);
           await ProjectDAO.injectDB(client);
+          await ElementsDAO.injectDB(client);
     // await MoviesDAO.injectDB(client)
     // await UsersDAO.injectDB(client)
     // await CommentsDAO.injectDB(client)

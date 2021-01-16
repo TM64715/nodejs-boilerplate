@@ -8,6 +8,7 @@ import path from 'path';
 // import movies from "../src/api/movies.route"
 // import users from "../src/api/users.route"
 import authRouter from './api/auth.route';
+import elementRouter from './api/element.route'
 const app = express()
 
 app.use(cors())
@@ -17,8 +18,11 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(session({secret:"123409088"}))
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(express.static(path.join(__dirname, '../chem-nuclear-project/build')));
 
-app.use('/auth', authRouter)
+
+app.use('/auth', authRouter);
+app.use('/elements', elementRouter);
 
 // GET /auth/google/callback
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -31,8 +35,10 @@ app.use('/auth', authRouter)
 // app.use("/api/v1/user", users)
 // app.use("/status", express.static("build"))
 app.get("/hi", (req, res) => res.send(path.join(__dirname, "..", "website", "public", "index.html")) )
-app.get("/", (req, res) => res.redirect(process.env.CLIENT_APP_URL));
+// app.get("/", (req, res) => res.redirect(process.env.CLIENT_APP_URL));
 app.get('/me', (req, res) =>  console.log(req.user))
 // app.use("*", (req, res) => res.status(404).json({ error: "not found" }))
-
+app.get('*', (req,res) =>{
+    res.sendFile(path.join(__dirname, '../chem-nuclear-project/build/index.html'));
+})
 export default app
