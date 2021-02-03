@@ -5,9 +5,10 @@ import morgan from "morgan"
 import passport from 'passport'
 import session from 'express-session'
 import path from 'path';
-// import movies from "../src/api/movies.route"
+import projectRouter from "../src/api/projects.route"
 // import users from "../src/api/users.route"
 import authRouter from './api/auth.route';
+import { ContextHandlerImpl } from "express-validator/src/chain"
 const app = express()
 
 app.use(cors())
@@ -19,7 +20,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use('/auth', authRouter)
-
+app.use('/projects', passport.authenticate('local', {failureRedirect: '/'}), projectRouter)
 // GET /auth/google/callback
 //   Use passport.authenticate() as route middleware to authenticate the
 //   request.  If authentication fails, the user will be redirected back to the

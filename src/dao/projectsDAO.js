@@ -1,5 +1,5 @@
 import 'mongodb';
-import { ObjectID, Date } from 'mongodb';
+import { ObjectID } from 'mongodb';
 
 let projects;
 let EB
@@ -20,14 +20,15 @@ export default class ProjectDAO {
     }
     /**
      * @param userId - user id found in session
+     * @param projectName - user facing name of project
      * @returns {DAOResponse} - id of document
      */
 
-    static async createProject (userId) {
+    static async createProject (userId, projectName) {
         let currentDate = new Date();
         currentDate.toISOString();
         try {
-            let doc = await projects.insertOne({projectName: "", userId: userId, dateCreated: currentDate})
+            let doc = await projects.insertOne({projectName: projectName, userId: userId, dateCreated: currentDate})
             return({error: null, result: doc})
         }
         catch (e) {
