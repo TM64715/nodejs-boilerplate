@@ -7,10 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "start": "nodemon dotenv/config ./index.js",
+    "start": "nodemon ./index.js",
     "test": "jest --passWithNoTests",
-    "test:watch": "jest --passWithNoTests --watch",
-    "heroku-postbuild": "cd client && npm install --only=dev && npm install && npm run build"
+    "test:watch": "jest --passWithNoTests --watch"
   },
   "keywords": [],
   "author": "",
