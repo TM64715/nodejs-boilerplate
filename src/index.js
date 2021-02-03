@@ -6,7 +6,9 @@ import { MongoClient } from "mongodb"
 import UsersDAO from "./dao/usersDAO";
 import ProjectDAO from './dao/projectsDAO'
 import { Strategy } from "passport";
-const port = process.env.PORT || 8000
+
+// const port = process.env.PORT || 8000
+const port = 8000
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 import { Strategy as LocalStrategy } from 'passport-local';
@@ -65,13 +67,13 @@ passport.use(new LocalStrategy(
   async function(username, password, done) {
     let { error, result } = await UsersDAO.findByUsername(username);
     if (error) { return done(error)};
-    console.log("Stage 2")
+    
     if (!result) {return done(null, false)};
-    console.log("Stage 3")
+    
     let compareResult = await compareHash(password, result.hash)
-    console.log(compareResult);
+    
     if (!(compareResult)) {return done(null, false)};
-    console.log("Stage 4")
+    
     return done(null, result);
   }
 ));
@@ -86,13 +88,5 @@ passport.deserializeUser(async function(id, done) {
     
   const {error, result} = await UsersDAO.findById(id)
   done(error, result);
-});
-
-app.post('/login',
-  passport.authenticate('local'),
-    function(req, res) {
-      // If this function gets called, authentication was successful.
-      // `req.user` contains the authenticated user.
-      res.json(req.user);
 });
 

@@ -13,7 +13,15 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
 })
 
 router.post('/register', UserController.register)
-
+router.post('/login',
+  passport.authenticate('local', 'google'),
+    function(req, res) {
+      // If this function gets called, authentication was successful.
+      // `req.user` contains the authenticated user.
+      let shallowObj = req.user;
+      delete shallowObj.hash;
+      res.json(shallowObj);
+});
 
 
 export default router;
